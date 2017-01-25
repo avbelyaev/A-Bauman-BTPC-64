@@ -81,8 +81,8 @@ IsEOF:
 #==========================================
 .section .text
 
-.global main
-main:
+.global _start
+_start:
     jmp StubEntryPoint
 
 /*
@@ -324,10 +324,7 @@ RTLReadInteger:
     ReadIntegerDone:
     imul %rcx               #rax *= rcx  (rcx={1;-1})
     
-    pushq %rax
-    pushq $0
-    call RTLWriteInteger   #print out rax
-    addq $16,    %rsp
+    movq %rax, (%rsp)
     
     popall
     ret
@@ -403,6 +400,13 @@ RTLHalt:
 #//==----------------------------------==//
 StubEntryPoint:
     #syscall mmap here
+    call RTLReadInteger
+
+    pushq %rax
+    pushq $3
+    call RTLWriteInteger
+    addq $16, %rsp
+    space
 
     pushq $-123
     pushq $6
@@ -414,11 +418,11 @@ StubEntryPoint:
     addq $8,    %rsp
     call RTLWriteLn
 
-    call RTLReadChar    #read from stdin to rax
+    #call RTLReadChar    #read from stdin to rax
     #call RTLReadInteger
     #space
     #call RTLReadInteger
-    call RTLReadLn
+    #call RTLReadLn
     call RTLReadInteger
 
     call RTLEOF
