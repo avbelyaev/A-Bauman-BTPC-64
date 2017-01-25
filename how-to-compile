@@ -1,0 +1,25 @@
+gcc -c beronew2.s
+ld beronew2.o -g -o beronew2
+./beronew2
+gdb ./beronew2
+
+
+
+
+anthony:~/Dropbox/bero$ as -o hello32.o hello32.s
+anthonyd:~/Dropbox/bero$ ld -o hell -dynamic-linker /lib/x86_64-linux-gnu/ld-linux-x86-64.so.2 /usr/lib/x86_64-linux-gnu/crt1.o /usr/lib/x86_64-linux-gnu/crti.o -lc hello32.o /usr/lib/x86_64-linux-gnu/crtn.o
+anthony:~/Dropbox/bero$ ./hell
+hallo %d
+ 
+anthony:~/Dropbox/bero$
+
+
+GDB:
+info files
+b *0x4000xx
+run
+x/5i $pc
+x/8g $sp
+info registers
+p $rax
+set $rax = 0x123
