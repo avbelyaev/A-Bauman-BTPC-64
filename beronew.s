@@ -16,7 +16,39 @@ ReadCharInited:
             
 IsEOF:
     .byte 0x30
+
+/*
+    .set RTLCallHalt, $12
+    .set RTLCallWriteChar,      8(%rsi)
+    .set RTLCallWriteInteger,   16(%rsi)
+    .set RTLCallWriteLn         24(%rsi)
+    .set RTLCallReadChar        32(%rsi)
+    .set RTLCallReadInteger     40(%rsi)
+    .set RTLCallReadLn          48(%rsi)
+    .set RTLCallEOF             56(%rsi)
+    .set RTLCallEOLN            64(%rsi)   
+        */    
+RTLFunctionTable:
+    .long RTLHalt
+    .long RTLWriteChar
+    .long RTLWriteInteger
+    .long RTLWriteLn
+    .long RTLReadChar
+    .long RTLReadInteger
+    .long RTLReadLn
+    .long RTLEOF
+    .long RTLEOLN
+            
+OldStack:
+    .byte 0x3c,0x3d,0x3d,0x3d,0x3d,0x3d,0x3e,0x00       # <=====>\0
+    #8 bytes because rsp will be stored here
+
+HeapHandle:
+    .byte 0x3c,0x3d,0x3d,0x3d,0x3d,0x3d,0x3e,0x00       # <=====>\0
     
+HeapMemory:
+    .byte 0x3c,0x3d,0x3d,0x3d,0x3d,0x3d,0x3e,0x00       # <=====>\0
+            
 #==========================================
 #-------------------bss--------------------
 #==========================================    
@@ -392,20 +424,19 @@ RTLEOLN:
 #------------------Halt--------------------
 #------------------------------------------        
 RTLHalt:
+    #unmap
     movq    $60, %rax
     movq    $0,  %rdi
     syscall
 
 
-#//==----------------------------------==//
-#//----------------ENTRY-----------------//
-#//==----------------------------------==//
-StubEntryPoint:
-    #syscall mmap here
-    
+#------------------------------------------#
+#-                 Tests                  -#
+#------------------------------------------#
+Test1:
     #test 1: ReadInt, WriteChar, WriteInt, WriteLine
     #test input(-1337 + space): "-1337 "
-    /*call RTLReadInteger
+    call RTLReadInteger
 
     pushq %rax
     pushq $5
@@ -423,23 +454,14 @@ StubEntryPoint:
     pushq $'A'
     call RTLWriteChar  
     addq $8,    %rsp
-    call RTLWriteLn**/
-
-    call RTLReadLn
+    call RTLWriteLn
     
-    call RTLReadChar
-    raxchar
-    space
-    raxint
+    call RTLHalt
     
-    call RTLEOF
-    parleft
-    raxint
-    parright
-        
+Test2:
     #test 2: ReadChar, EndOfLine, EndOfFile, WriteInt
     #test input(B + linebreak): "B\n"
-    /*call RTLReadChar
+    call RTLReadChar
     parleft
     raxchar
     raxint
@@ -458,20 +480,45 @@ StubEntryPoint:
     parleft
     raxchar
     raxint
-    parright**/
+    parright
     
     call RTLHalt
-    /*
-    gdb:
-    info files
-    b *0x4000xx
-    run
-    si 1
-    ni 1
-    x/5i $pc
-    x/8g $sp
-    info registers
-    p $rax
-    set $rax = 0x123
-    */
+
+#//==----------------------------------==//
+#//----------------ENTRY-----------------//
+#//==----------------------------------==//
+StubEntryPoint:
+
+    call RTLReadLn
+    
+    call RTLReadChar
+    raxchar
+    space
+    raxint
+
+    call RTLEOF
+    parleft
+    raxint
+    parright
+    
+    #call Prepare
+    
+    call RTLHalt
+    
+    
+#------------------------------------------
+#------------Preapare to start-------------
+#------------------------------------------    
+Prepare:
+    movq    %rsp, (OldStack)
+    #allocate 4Mb mmap
+    #set heapHandle
+    #set heapMemory
+    addq    $4194304, %rax
+    #movq    %rax, %rsp     ???
+    #movq    %rsp, %rbp
+    movq    $RTLFunctionTable, %rsi
+
+ProgramEntryPoint:
+    call RTLHalt
     
