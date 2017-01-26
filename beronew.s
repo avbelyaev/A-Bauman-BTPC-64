@@ -15,10 +15,10 @@ ReadCharInited:
     .byte 0
             
 IsEOF:
-    .byte 0x30
+    .byte 0
 
 /*
-    .set RTLCallHalt, $12
+    .set RTLCallHalt, $1
     .set RTLCallWriteChar,      8(%rsi)
     .set RTLCallWriteInteger,   16(%rsi)
     .set RTLCallWriteLn         24(%rsi)
@@ -124,7 +124,7 @@ _start:
 4. X  RTLWriteLn — выводит на stdout символ новой строки (13, 10),
 5. X  RTLReadChar — считывает символ из stdin, результат кладёт в EAX,
 6. X  RTLReadInteger — считывает целое из stdin, результат кладёт в EAX,
-7. X  RTLReadLn — пропускает стандартный ввод до конца файла или ближайшего перевода строки,
+7.!X!!RTLReadLn — пропускает стандартный ввод до конца файла или ближайшего перевода строки,
 8. X  RTLEOF — возвращает в EAX число 1, если достигнут конец файла (следующий символ прочитать невозможно) или 0 в противном случае,
 9. X  RTLEOLN — возвращает в EAX число 1, если следующий символ \n, 0 — в противном случае.
 
@@ -275,7 +275,7 @@ ReadCharEx:
     syscall
 
     testq   %rbx, %rbx    
-    setz    %bl                    #al: 0 == rbx ? 1:0 == rax? 1:0
+    setz    %bl                    #al: (0 == rbx) ? 1:0
     orb     %bl, (IsEOF)
 
     popall
@@ -317,7 +317,7 @@ RTLReadInteger:
     movq $1, %rcx    #leaq 1(%rax,%rbx=0,1), %rcx  equivalent
     
     ReadIntegerSkipWhiteSpace:
-        cmpb $'1',    IsEOF
+        cmpb $1,    (IsEOF)
         jnz ReadIntegerDone
         cmpb $0,    (ReadCharBuffer)
         je ReadIntegerSkipWhiteSpaceDone
@@ -363,7 +363,11 @@ RTLReadInteger:
 
 #------------------------------------------
 #------------------ReadLn------------------
-#------------------------------------------        
+#------------------------------------------  
+/*
+ it does NOT skip input if %RAX is nulled
+ so put there some trash before calling it
+**/      
 RTLReadLn:
     call ReadCharInit
     
@@ -384,15 +388,15 @@ RTLReadLn:
     parright
     
     
-    cmpb    $'1', (IsEOF)
+    cmpb    $0, (IsEOF)
     jne     ReadLnDone
     
-        movb    (ReadCharBuffer), %bl    
-        cmpb    $10, %bl                 #cmp to LF
-        je      ReadLnDone
+        #movb    (ReadCharBuffer), %bl    
+        cmpb    $10, (ReadCharBuffer)        #cmp to LF
+        jne      ReadLnDone
     
-    call    ReadCharEx
-    jmp     RTLReadLn
+            call    ReadCharEx
+            jmp     RTLReadLn
     
     ReadLnDone:
     ret
@@ -402,14 +406,15 @@ RTLReadLn:
 #------------------------------------------         
 RTLEOF:
     xorq    %rax, %rax
+    movb    (IsEOF), %al
 
-    cmpb    $'1', (IsEOF)
+    /*cmpb    $1, (IsEOF)
     jne     noteof
         movq    $1, %rax
         ret
     
     noteof:
-    movq    $0, %rax
+    movq    $0, %rax*/
     ret
 
 #------------------------------------------
@@ -463,19 +468,28 @@ Test2:
     #test input(B + linebreak): "B\n"
     call RTLReadChar
     parleft
-    raxchar
+    raxchar                     #should be "B"
+    raxint                      #should be 66(B)
+    parright
+    
+    #
+    parleft
+    xorq %rax, %rax
+    movb (ReadCharBuffer), %al
     raxint
     parright
+    #
     
     xorq %rdx, %rdx
     call RTLEOLN
     parleft
     pushq %rdx
-    pushq $4
-    call RTLWriteInteger
+    pushq $1
+    call RTLWriteInteger        #should be 1 cuz of linebreak
     addq $16, %rsp
     parright
     
+
     call RTLEOF
     parleft
     raxchar
@@ -484,28 +498,30 @@ Test2:
     
     call RTLHalt
 
+Test3:
+    #test3: ReadLn, ReadChar
+    #test input(linebreak + A):"\nA" 
+    
+#put smth into %rax in case IsEOF wont be triggered after first char
+    movq $1, %rax   
+    call RTLReadLn
+    
+    call RTLReadChar
+    parleft
+    raxchar             #should be "A"
+    space
+    raxint              #should be 65(A)
+    parright
+    
+    call RTLHalt
+    
 #//==----------------------------------==//
 #//----------------ENTRY-----------------//
 #//==----------------------------------==//
 StubEntryPoint:
 
-    call RTLReadLn
-    
-    call RTLReadChar
-    raxchar
-    space
-    raxint
+    call Test1
 
-    call RTLEOF
-    parleft
-    raxint
-    parright
-    
-    #call Prepare
-    
-    call RTLHalt
-    
-    
 #------------------------------------------
 #------------Preapare to start-------------
 #------------------------------------------    
@@ -514,11 +530,11 @@ Prepare:
     #allocate 4Mb mmap
     #set heapHandle
     #set heapMemory
-    addq    $4194304, %rax
-    #movq    %rax, %rsp     ???
+    #addq    $4194304, %rax
+    #movq    %rax, %rsp
     #movq    %rsp, %rbp
     movq    $RTLFunctionTable, %rsi
 
 ProgramEntryPoint:
-    call RTLHalt
+
     
