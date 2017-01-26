@@ -71,7 +71,7 @@ IsEOF:
     
     .macro raxint
         pushq %rax
-        pushq $1
+        pushq $3
         call RTLWriteInteger
         addq $16,    %rsp
     .endm
@@ -236,14 +236,14 @@ ReadCharEx:
     
     movq %rax, %rbx         #copy rax to rbx cuz of rax's usage in syscall
     
-    movq $0,    %rax            #syscall read
-    movq $0,    %rdi            #p1:stdin
+    xorq %rax,    %rax          #syscall read(#0)
+    xorq %rdi,    %rdi          #p1:stdin(0)
     movq $ReadCharBuffer,  %rsi #p2:buffer
     movq $1,    %rdx            #p3:count
     syscall
 
     testq %rbx, %rbx    
-    setz %bl                    #al: 0 == rax ? 1 : 0
+    setz %bl                    #al: 0 == rbx ? 1:0 == rax? 1:0
     orb %bl,    IsEOF
 
     popall
@@ -266,8 +266,8 @@ RTLReadChar:
     call ReadCharInit
 
     xorq %rax, %rax
-    movb ReadCharBuffer,   %al    #movzx (ReadCharBuffer), %rax
-    movzx %al, %rax
+    movb (ReadCharBuffer),   %al    #movzx (ReadCharBuffer), %rax
+    #movzx %al, %rax
     
     call ReadCharEx
 
@@ -369,7 +369,7 @@ RTLReadLn:
 RTLEOF:
     xorq %rax,  %rax
 
-    cmpb $'1', IsEOF
+    cmpb $'1', (IsEOF)
     jne noteof
         movq $1,    %rax
         ret
@@ -382,8 +382,8 @@ RTLEOF:
 #------------------EOLN--------------------
 #------------------------------------------    
 RTLEOLN:
-    cmpb $10,   ReadCharBuffer
-    sete %bl
+    cmpb $10,   (ReadCharBuffer)
+    sete %dl
     ret
 
 #------------------------------------------
@@ -400,31 +400,47 @@ RTLHalt:
 #//==----------------------------------==//
 StubEntryPoint:
     #syscall mmap here
-    call RTLReadInteger
+    /*call RTLReadInteger
 
     pushq %rax
-    pushq $3
+    pushq $5
     call RTLWriteInteger
     addq $16, %rsp
+    
     space
 
     pushq $-123
     pushq $6
     call RTLWriteInteger   
+    addq $16, %rsp
     call RTLWriteLn
 
     pushq $'A'
     call RTLWriteChar  
     addq $8,    %rsp
     call RTLWriteLn
-
+**/
     #call RTLReadChar    #read from stdin to rax
     #call RTLReadInteger
     #space
     #call RTLReadInteger
     #call RTLReadLn
-    call RTLReadInteger
-
+    #call RTLReadInteger
+    call RTLReadChar
+    parleft
+    raxchar
+    raxint
+    parright
+    
+    xorq %rdx, %rdx
+    call RTLEOLN
+    parleft
+    pushq %rdx
+    pushq $4
+    call RTLWriteInteger
+    addq $16, %rsp
+    parright
+    
     call RTLEOF
     parleft
     raxchar
