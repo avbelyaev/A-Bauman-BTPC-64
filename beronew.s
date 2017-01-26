@@ -71,7 +71,7 @@ IsEOF:
     
     .macro raxint
         pushq %rax
-        pushq $3
+        pushq $1
         call RTLWriteInteger
         addq $16,    %rsp
     .endm
@@ -104,13 +104,13 @@ _start:
 #------------------------------------------
 RTLWriteChar:
     pushall
-    movq %rsp,   %rbp    #better use base ptr to stack frame
-                        #instead of stack itself
-    movq $1,    %rax    #syscall №
-    movq $1,    %rdi    #param1, fd
-    movq %rbp,  %rsi    #p2, buf
-    addq $72,   %rsi    #stack:[0-ret,8-arg1,16-arg2]
-    movq $1,    %rdx    #p3, count
+    movq    %rsp,   %rbp    #better use base ptr to stack frame
+                            #instead of stack itself
+    movq    $1,     %rax    #syscall №
+    movq    $1,     %rdi    #param1, fd
+    movq    %rbp,   %rsi    #p2, buf
+    addq    $72,    %rsi    #stack:[0-ret,8-arg1,16-arg2]
+    movq    $1,     %rdx    #p3, count
 
     syscall
     
@@ -219,42 +219,42 @@ RTLWriteInteger:
 #-----------------WriteLn------------------
 #------------------------------------------    
 RTLWriteLn: 
-    pushq $13
-    call RTLWriteChar
-    addq $8,    %rsp
+    pushq   $13
+    call    RTLWriteChar
+    addq    $8, %rsp
     
-    pushq $10
-    call RTLWriteChar
-    addq $8,    %rsp
+    pushq   $10
+    call    RTLWriteChar
+    addq    $8, %rsp
 
     ret
    
      
 ReadCharEx:
     pushall
-    movq %rsp,  %rbp
+    movq    %rsp, %rbp
     
-    movq %rax, %rbx         #copy rax to rbx cuz of rax's usage in syscall
+    movq    %rax, %rbx         #copy rax to rbx cuz of rax's usage in syscall
     
-    xorq %rax,    %rax          #syscall read(#0)
-    xorq %rdi,    %rdi          #p1:stdin(0)
-    movq $ReadCharBuffer,  %rsi #p2:buffer
-    movq $1,    %rdx            #p3:count
+    xorq    %rax, %rax          #syscall read(#0)
+    xorq    %rdi, %rdi          #p1:stdin(0)
+    movq    $ReadCharBuffer, %rsi #p2:buffer
+    movq    $1, %rdx            #p3:count
     syscall
 
-    testq %rbx, %rbx    
-    setz %bl                    #al: 0 == rbx ? 1:0 == rax? 1:0
-    orb %bl,    IsEOF
+    testq   %rbx, %rbx    
+    setz    %bl                    #al: 0 == rbx ? 1:0 == rax? 1:0
+    orb     %bl, (IsEOF)
 
     popall
     ret
     
 ReadCharInit:
-    cmpb $0,    (ReadCharInited)
-    jnz ReadInitDone
+    cmpb    $0, (ReadCharInited)
+    jnz     ReadInitDone
     
-        call ReadCharEx
-        movb $1,    (ReadCharInited)
+        call    ReadCharEx
+        movb    $1, (ReadCharInited)
 
     ReadInitDone:
     ret
@@ -263,13 +263,13 @@ ReadCharInit:
 #----------------ReadChar------------------
 #------------------------------------------    
 RTLReadChar:
-    call ReadCharInit
+    call    ReadCharInit
 
-    xorq %rax, %rax
-    movb (ReadCharBuffer),   %al    #movzx (ReadCharBuffer), %rax
-    #movzx %al, %rax
+    xorq    %rax, %rax
+    movb    (ReadCharBuffer), %al    #movzx (ReadCharBuffer), %rax
+    #movzx  %al, %rax
     
-    call ReadCharEx
+    call    ReadCharEx
 
     ret
 
@@ -287,9 +287,9 @@ RTLReadInteger:
     ReadIntegerSkipWhiteSpace:
         cmpb $'1',    IsEOF
         jnz ReadIntegerDone
-        cmpb $0,    ReadCharBuffer
+        cmpb $0,    (ReadCharBuffer)
         je ReadIntegerSkipWhiteSpaceDone
-        cmpb $32,   ReadCharBuffer          #$32=space
+        cmpb $32,   (ReadCharBuffer)          #$32=space
         ja ReadIntegerSkipWhiteSpaceDone
         
         call ReadCharEx
@@ -306,7 +306,7 @@ RTLReadInteger:
     ReadIntegerNotSigned:
     ReadIntegerLoop:
         xorq %rbx, %rbx
-        movb ReadCharBuffer,  %bl
+        movb (ReadCharBuffer),  %bl
         
         cmpb $'0',  %bl 
         jb ReadIntegerDone
@@ -336,29 +336,31 @@ RTLReadLn:
     call ReadCharInit
     
     parleft
-    pushq (ReadCharBuffer)
-    call RTLWriteChar
-    addq $8,    %rsp
+    xor     %rbx, %rbx
+    movb    (ReadCharBuffer), %bl
+    pushq   %rbx
+    pushq   $1
+    call    RTLWriteInteger
+    addq    $16, %rsp
     
-    pushq (IsEOF)
-    call RTLWriteChar
-    addq $8,    %rsp
+    space
     
-    pushq IsEOF
-    call RTLWriteChar
-    addq $8,    %rsp
+    movb    (IsEOF), %bl
+    pushq   %rbx
+    call    RTLWriteChar
+    addq    $8, %rsp
     parright
     
     
-    cmpb $'1',    IsEOF                   
-    jne ReadLnDone
+    cmpb    $'1', (IsEOF)
+    jne     ReadLnDone
     
-        movb ReadCharBuffer,    %bl    
-        cmpb $10,   %bl                 #cmp to LF
-        je ReadLnDone
+        movb    (ReadCharBuffer), %bl    
+        cmpb    $10, %bl                 #cmp to LF
+        je      ReadLnDone
     
-    call ReadCharEx
-    jmp RTLReadLn
+    call    ReadCharEx
+    jmp     RTLReadLn
     
     ReadLnDone:
     ret
@@ -367,31 +369,31 @@ RTLReadLn:
 #-------------------EOF--------------------
 #------------------------------------------         
 RTLEOF:
-    xorq %rax,  %rax
+    xorq    %rax, %rax
 
-    cmpb $'1', (IsEOF)
-    jne noteof
-        movq $1,    %rax
+    cmpb    $'1', (IsEOF)
+    jne     noteof
+        movq    $1, %rax
         ret
     
     noteof:
-    movq $0,    %rax
+    movq    $0, %rax
     ret
 
 #------------------------------------------
 #------------------EOLN--------------------
 #------------------------------------------    
 RTLEOLN:
-    cmpb $10,   (ReadCharBuffer)
-    sete %dl
+    cmpb    $10, (ReadCharBuffer)
+    sete    %dl
     ret
 
 #------------------------------------------
 #------------------Halt--------------------
 #------------------------------------------        
 RTLHalt:
-    movq $60,   %rax
-    movq $0,    %rdi
+    movq    $60, %rax
+    movq    $0,  %rdi
     syscall
 
 
@@ -400,6 +402,9 @@ RTLHalt:
 #//==----------------------------------==//
 StubEntryPoint:
     #syscall mmap here
+    
+    #test 1: ReadInt, WriteChar, WriteInt, WriteLine
+    #test input(-1337 + space): "-1337 "
     /*call RTLReadInteger
 
     pushq %rax
@@ -418,15 +423,23 @@ StubEntryPoint:
     pushq $'A'
     call RTLWriteChar  
     addq $8,    %rsp
-    call RTLWriteLn
-**/
-    #call RTLReadChar    #read from stdin to rax
-    #call RTLReadInteger
-    #space
-    #call RTLReadInteger
-    #call RTLReadLn
-    #call RTLReadInteger
+    call RTLWriteLn**/
+
+    call RTLReadLn
+    
     call RTLReadChar
+    raxchar
+    space
+    raxint
+    
+    call RTLEOF
+    parleft
+    raxint
+    parright
+        
+    #test 2: ReadChar, EndOfLine, EndOfFile, WriteInt
+    #test input(B + linebreak): "B\n"
+    /*call RTLReadChar
     parleft
     raxchar
     raxint
@@ -445,8 +458,8 @@ StubEntryPoint:
     parleft
     raxchar
     raxint
-    parright
-
+    parright**/
+    
     call RTLHalt
     /*
     gdb:
@@ -461,3 +474,4 @@ StubEntryPoint:
     p $rax
     set $rax = 0x123
     */
+    
