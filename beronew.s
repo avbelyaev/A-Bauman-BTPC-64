@@ -30,13 +30,19 @@ RTLFunctionTable:
             
 OldStack:
     .byte 0x3c,0x3d,0x3d,0x3d,0x3d,0x3d,0x3e,0x00       # <=====>\0
-    #8 bytes because rsp will be stored here
+      
+RTLCallHalt:        .long 0
+RTLCallWriteChar:   .long 0
+RTLCallWriteInteger:.long 0
+RTLCallWriteLn:     .long 0
+RTLCallReadChar:    .long 0
+RTLCallReadInteger: .long 0
+RTLCallReadLn:      .long 0
+RTLCallEOF:         .long 0
+RTLCallEOLN:        .long 0
+     #.equ RTLCallWriteChar,      8(%rsi)
+     #.set RTLCallWriteInteger,   16(%rsi) 
 
-HeapHandle:
-    .byte 0x3c,0x3d,0x3d,0x3d,0x3d,0x3d,0x3e,0x00       # <=====>\0
-    
-HeapMemory:
-    .byte 0x3c,0x3d,0x3d,0x3d,0x3d,0x3d,0x3e,0x00       # <=====>\0
             
 #==========================================
 #-------------------bss--------------------
@@ -507,17 +513,6 @@ Test3:
     call RTLHalt
     
     
-    .equ RTLCallHalt, $1
-     #.equ RTLCallWriteChar,      8(%rsi)
-  /*  .set RTLCallWriteInteger,   16(%rsi)
-    .set RTLCallWriteLn         24(%rsi)
-    .set RTLCallReadChar        32(%rsi)
-    .set RTLCallReadInteger     40(%rsi)
-    .set RTLCallReadLn          48(%rsi)
-    .set RTLCallEOF             56(%rsi)
-    .set RTLCallEOLN            64(%rsi)   
-        */  
-    
 #//==----------------------------------==//
 #//----------------ENTRY-----------------//
 #//==----------------------------------==//
@@ -528,21 +523,36 @@ StubEntryPoint:
     pushq $4
     call RTLWriteInteger
     
-    call RTLHalt
+    #call RTLHalt
 
 #------------------------------------------
 #------------Preapare to start-------------
 #------------------------------------------    
 Prepare:
-    movq    %rsp, (OldStack)
-    #allocate 4Mb mmap
-    #set heapHandle
-    #set heapMemory
-    #addq    $4194304, %rax
-    #movq    %rax, %rsp
-    #movq    %rsp, %rbp
-    movq    $RTLFunctionTable, %rsi
+    movq %rsp, (OldStack)
+    
+    movq $RTLHalt,          (RTLCallHalt)
+    movq $RTLWriteChar,     (RTLCallWriteChar)
+    movq $RTLWriteInteger,  (RTLCallWriteInteger)
+    movq $RTLWriteLn,       (RTLCallWriteLn)
+    movq $RTLReadChar,      (RTLCallReadChar)
+    movq $RTLReadInteger,   (RTLCallReadInteger)
+    movq $RTLReadLn,        (RTLCallReadLn)
+    movq $RTLEOF,           (RTLCallEOF)
+    movq $RTLEOLN,          (RTLCallEOLN)
 
+    movq $RTLFunctionTable,    %rsi
+    
+    movq $RTLHalt,            (%rsi)
+    movq $RTLWriteChar,      8(%rsi)
+    movq $RTLWriteInteger,  16(%rsi)
+    movq $RTLWriteLn,       24(%rsi)
+    movq $RTLReadChar,      32(%rsi)
+    movq $RTLReadInteger,   40(%rsi)
+    movq $RTLReadLn,        48(%rsi)
+    movq $RTLEOF,           56(%rsi)
+    movq $RTLEOLN,          64(%rsi)
+    
 ProgramEntryPoint:
-
+    call RTLHalt
     
