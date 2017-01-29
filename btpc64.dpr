@@ -2082,6 +2082,8 @@ const locNone=0;
       locMovEBXDWordPtrFORStateCurrentValue=23;
       locCmpDWordPtrEBXEAX=24;
       locMovEAXDWordPtrFORStateDestValue=25;
+      {new}
+      locJNZJNE0x04=26;
 
 var LastOutputCodeValue,PC:integer;
 
@@ -2175,6 +2177,13 @@ begin
  LastOutputCodeValue:=locJNZJNE0x03;
 end;
 
+{new}
+procedure OCJNZJNE0x04;
+begin
+ EmitByte($75); EmitByte($04);
+ LastOutputCodeValue:=locJNZJNE0x04;
+end;
+
 {ab}
 procedure OCMovDWordPtrESPEAX;
 begin
@@ -2189,14 +2198,14 @@ begin
  LastOutputCodeValue:=locMovDWordPtrEBXEAX;
 end;
 
-{?}
+{+}
 procedure OCJmpDWordPtrESIOfs(Ofs:integer);
 begin
  EmitByte($ff); EmitByte($66); EmitByte(Ofs);
  LastOutputCodeValue:=locJmpDWordPtrESIOfs;
 end;
 
-{?}
+{+}
 procedure OCCallDWordPtrESIOfs(Ofs:integer);
 begin
  EmitByte($ff); EmitByte($56); EmitByte(Ofs);
@@ -2231,7 +2240,7 @@ begin
  LastOutputCodeValue:=locCLD;
 end;
 
-{?}
+{+}
 procedure OCREPMOVSB;
 begin
  EmitByte($f3); EmitByte($a4);
@@ -2262,7 +2271,7 @@ end;
 {?}
 procedure OCMovEBXDWordPtrFORStateCurrentValue;
 begin
- EmitByte($8b); EmitByte($5d); EmitByte($04);
+ EmitByte($8b); EmitByte($5d); EmitByte($04); {mov    eax,DWORD PTR [ebp+0x4]}
  LastOutputCodeValue:=locMovEBXDWordPtrFORStateCurrentValue;
 end;
 
@@ -2276,7 +2285,7 @@ end;
 {?}
 procedure OCMovEAXDWordPtrFORStateDestValue;
 begin
- EmitByte($8b); EmitByte($45); EmitByte($08);
+ EmitByte($8b); EmitByte($45); EmitByte($08); {mov    eax,DWORD PTR [ebp+0x8]}
  LastOutputCodeValue:=locMovEAXDWordPtrFORStateDestValue;
 end;
 
@@ -2325,8 +2334,8 @@ begin
     OCPushEDX;
    end;
    OPDiv2:begin
-   {?}
-    EmitByte($d1); EmitByte($3c); EmitByte($24); { SAR DWORD PTR [ESP],1 }
+   {ab}
+    EmitByte($48); EmitByte($d1); EmitByte($3c); EmitByte($24); { SAR DWORD PTR [ESP],1 }
     LastOutputCodeValue:=locNone;
    end;
    OPRem2:begin
@@ -2420,8 +2429,8 @@ begin
    OPAndB:begin
     OCPopEAX;
     OCTestEAXEAX;
-    {?}
-    OCJNZJNE0x03;
+    {+}{originally it was skipping 3 instr. now 4}
+    OCJNZJNE0x04;
     OCMovDWordPtrESPEAX;
     LastOutputCodeValue:=locNone;
    end;
@@ -2430,8 +2439,8 @@ begin
     {ab}
     EmitByte($48); EmitByte($83); EmitByte($f8); EmitByte($01);  { CMP EAX,1 }
     LastOutputCodeValue:=locNone;
-    {?}
-    OCJNZJNE0x03;
+    {+}
+    OCJNZJNE0x04;
     OCMovDWordPtrESPEAX;
     LastOutputCodeValue:=locNone;
    end;
