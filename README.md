@@ -1,14 +1,18 @@
 # course-compilers
-berotiny pascal porting win32 -> linux64
+bero tiny pascal porting win32 -> linux64
 
 compile:
 
      gcc -c beronew.s
      ld beronew.o -g -o beronewNolib
-     gdb beronewNolib 
+     
+     
+linker script usage:
 
-SASM compiler config:
-x64 GAS
+    gcc -c beronew.s
+    ld beronew.o -g -o beronew -T linkerScript
+
+SASM x64 GAS compiler config:
 
      as -o $PROGRAM.OBJ$ $SOURCE$
      ld $PROGRAM.OBJ$ -g -o $PROGRAM$
@@ -18,6 +22,8 @@ gas:
     (IsEOF) == IsEOF
 
 gdb:
+
+    gdb beronewNolib 
 
     info files
     b *0x4000b0
@@ -30,7 +36,7 @@ gdb:
     p $rax
     set $rax = 0x123
     
-btpc64:
+btpc64 annotations:
     
     {+} - doesnt need to be changed
     {ab} - successfully changed
