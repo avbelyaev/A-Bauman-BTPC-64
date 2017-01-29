@@ -36,3 +36,4 @@ btpc64:
     {ab} - successfully changed
     {?} - not yet done. need to think
     {!} - mistake in original code / commentary
+    {new} - newly created func/proc/var/etc
