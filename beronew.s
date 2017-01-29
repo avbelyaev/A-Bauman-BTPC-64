@@ -16,18 +16,7 @@ ReadCharInited:
             
 IsEOF:
     .byte 0
-
-/*
-    .set RTLCallHalt, $1
-    .set RTLCallWriteChar,      8(%rsi)
-    .set RTLCallWriteInteger,   16(%rsi)
-    .set RTLCallWriteLn         24(%rsi)
-    .set RTLCallReadChar        32(%rsi)
-    .set RTLCallReadInteger     40(%rsi)
-    .set RTLCallReadLn          48(%rsi)
-    .set RTLCallEOF             56(%rsi)
-    .set RTLCallEOLN            64(%rsi)   
-        */    
+  
 RTLFunctionTable:
     .long RTLHalt
     .long RTLWriteChar
@@ -153,11 +142,12 @@ RTLWriteChar:
 #--------------WriteInteger----------------
 #------------------------------------------    
 RTLWriteInteger:
+    pushq %rsi
     pushq %rbp
     movq %rsp,  %rbp
     
-    movq 16(%rbp),  %rbx    #arg: count (stdout width)
-    movq 24(%rbp),  %rax    #arg: num
+    movq 24(%rbp),  %rbx    #arg: count (stdout width)
+    movq 32(%rbp),  %rax    #arg: num
     
     cmpq $0,    %rax
     jnl RTLWriteIntegerNotSigned
@@ -245,6 +235,7 @@ RTLWriteInteger:
     syscall
     
     popq %rbp
+    pop %rsi
     ret
     
 #------------------------------------------
@@ -515,12 +506,29 @@ Test3:
     
     call RTLHalt
     
+    
+    .equ RTLCallHalt, $1
+     #.equ RTLCallWriteChar,      8(%rsi)
+  /*  .set RTLCallWriteInteger,   16(%rsi)
+    .set RTLCallWriteLn         24(%rsi)
+    .set RTLCallReadChar        32(%rsi)
+    .set RTLCallReadInteger     40(%rsi)
+    .set RTLCallReadLn          48(%rsi)
+    .set RTLCallEOF             56(%rsi)
+    .set RTLCallEOLN            64(%rsi)   
+        */  
+    
 #//==----------------------------------==//
 #//----------------ENTRY-----------------//
 #//==----------------------------------==//
 StubEntryPoint:
 
-    call Test1
+    movq $-7, %rax
+    pushq %rax
+    pushq $4
+    call RTLWriteInteger
+    
+    call RTLHalt
 
 #------------------------------------------
 #------------Preapare to start-------------
