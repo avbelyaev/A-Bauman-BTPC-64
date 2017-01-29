@@ -29,3 +29,10 @@ gdb:
     info registers == i r
     p $rax
     set $rax = 0x123
+    
+btpc64:
+    
+    {+} - doesnt need to be changed
+    {ab} - successfully changed
+    {?} - not yet done. need to think
+    {!} - mistake in original code / commentary
