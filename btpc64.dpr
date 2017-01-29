@@ -1065,8 +1065,8 @@ begin
      if CurrentSymbol=TokStrC then begin
       x:=1;
       while x<=CurrentStringLength do begin
-       EmitOpcode(OPLdC,ord(CurrentString[x]));
-       EmitOpcode2(OPWrC);
+       EmitOpcode(OPLdC,ord(CurrentString[x])); {OPLdC == push byte/dword value}
+       EmitOpcode2(OPWrC);                      {writeChar(arg = top_of_stack)}
        x:=x+1;
       end;
       GetSymbol;
@@ -1103,7 +1103,7 @@ begin
      GetSymbol;
      VarPar(x);
      if x=TypeINT then begin
-      EmitOpcode2(OPRdI);
+      EmitOpcode2(OPRdI);            {there was a mistake in rtl. so this function is not used?}
      end else if x=TypeCHAR then begin
       EmitOpcode2(OPRdC);
      end else begin
@@ -2429,7 +2429,7 @@ begin
    OPAndB:begin
     OCPopEAX;
     OCTestEAXEAX;
-    {+}{originally it was skipping 3 instr. now 4}
+    {ab}{originally it was skipping 3 instr. now 4}
     OCJNZJNE0x04;
     OCMovDWordPtrESPEAX;
     LastOutputCodeValue:=locNone;
@@ -2439,7 +2439,7 @@ begin
     {ab}
     EmitByte($48); EmitByte($83); EmitByte($f8); EmitByte($01);  { CMP EAX,1 }
     LastOutputCodeValue:=locNone;
-    {+}
+    {ab}
     OCJNZJNE0x04;
     OCMovDWordPtrESPEAX;
     LastOutputCodeValue:=locNone;
@@ -2456,46 +2456,46 @@ begin
     OCMovDWordPtrEBXEAX;
    end;
    OPHalt:begin
-   {?}
+   {+}
     OCJmpDWordPtrESIOfs(0);
    end;
    OPWrI:begin
-    {?}
-    OCCallDWordPtrESIOfs(8);
+    {ab}
+    OCCallDWordPtrESIOfs(16);
    end;
    OPWrC:begin
-    {?}
-    OCCallDWordPtrESIOfs(4);
+    {ab}
+    OCCallDWordPtrESIOfs(8);
    end;
    OPWrL:begin
-    {?}
-    OCCallDWordPtrESIOfs(12);
+    {ab}
+    OCCallDWordPtrESIOfs(24);
    end;
    OPRdI:begin
     OCPopEBX;
-    {?}
-    OCCallDWordPtrESIOfs(20);
+    {ab}
+    OCCallDWordPtrESIOfs(40);
     OCMovDWordPtrEBXEAX;
    end;
    OPRdC:begin
     OCPopEBX;
-    {?}
-    OCCallDWordPtrESIOfs(16);
+    {ab}
+    OCCallDWordPtrESIOfs(32);
     OCMovzxEAXAL;
     OCMovDWordPtrEBXEAX;
    end;
    OPRdL:begin
-    {?}
-    OCCallDWordPtrESIOfs(24);
+    {ab}
+    OCCallDWordPtrESIOfs(48);
    end;
    OPEOF:begin
-    {?}
-    OCCallDWordPtrESIOfs(28);
+    {ab}
+    OCCallDWordPtrESIOfs(56);
     OCPushEAX;
    end;
    OPEOL:begin
-    {?}
-    OCCallDWordPtrESIOfs(32);
+    {ab}
+    OCCallDWordPtrESIOfs(64);
     OCPushEAX;
    end;
    OPLdC:begin
