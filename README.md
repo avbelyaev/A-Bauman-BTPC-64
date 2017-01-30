@@ -39,7 +39,9 @@ gdb:
 btpc64 annotations:
     
     {+} - doesnt need to be changed
+    {-} - not used.
     {ab} - successfully changed
     {?} - not yet done. need to think
     {!} - mistake in original code / commentary
     {new} - newly created func/proc/var/etc
+    {*} - point of interest. possible mistake
