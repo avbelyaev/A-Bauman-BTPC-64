@@ -30,7 +30,7 @@ RTLFunctionTable:
             
 OldStack:
     .byte 0x3c,0x3d,0x3d,0x3d,0x3d,0x3d,0x3e,0x00       # <=====>\0
-      
+/*      
 RTLCallHalt:        .long 0
 RTLCallWriteChar:   .long 0
 RTLCallWriteInteger:.long 0
@@ -39,7 +39,7 @@ RTLCallReadChar:    .long 0
 RTLCallReadInteger: .long 0
 RTLCallReadLn:      .long 0
 RTLCallEOF:         .long 0
-RTLCallEOLN:        .long 0
+RTLCallEOLN:        .long 0*/
      #.equ RTLCallWriteChar,      8(%rsi)
      #.set RTLCallWriteInteger,   16(%rsi) 
 
@@ -522,7 +522,7 @@ StubEntryPoint:
     pushq %rax
     pushq $4
     call RTLWriteInteger
-    
+    addq $16, %rsp
     #call RTLHalt
 
 #------------------------------------------
@@ -530,29 +530,9 @@ StubEntryPoint:
 #------------------------------------------    
 Prepare:
     movq %rsp, (OldStack)
-    
-    movq $RTLHalt,          (RTLCallHalt)
-    movq $RTLWriteChar,     (RTLCallWriteChar)
-    movq $RTLWriteInteger,  (RTLCallWriteInteger)
-    movq $RTLWriteLn,       (RTLCallWriteLn)
-    movq $RTLReadChar,      (RTLCallReadChar)
-    movq $RTLReadInteger,   (RTLCallReadInteger)
-    movq $RTLReadLn,        (RTLCallReadLn)
-    movq $RTLEOF,           (RTLCallEOF)
-    movq $RTLEOLN,          (RTLCallEOLN)
 
     movq $RTLFunctionTable,    %rsi
     
-    movq $RTLHalt,            (%rsi)
-    movq $RTLWriteChar,      8(%rsi)
-    movq $RTLWriteInteger,  16(%rsi)
-    movq $RTLWriteLn,       24(%rsi)
-    movq $RTLReadChar,      32(%rsi)
-    movq $RTLReadInteger,   40(%rsi)
-    movq $RTLReadLn,        48(%rsi)
-    movq $RTLEOF,           56(%rsi)
-    movq $RTLEOLN,          64(%rsi)
-    
 ProgramEntryPoint:
-    call RTLHalt
+    
     
