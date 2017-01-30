@@ -2083,7 +2083,7 @@ const locNone=0;
       locCmpDWordPtrEBXEAX=24;
       locMovEAXDWordPtrFORStateDestValue=25;
       {new}
-      locJNZJNE0x04=26;
+      locJNZJNE0x06=26;
 
 var LastOutputCodeValue,PC:integer;
 
@@ -2170,18 +2170,19 @@ begin
  LastOutputCodeValue:=locMovzxEAXAL;
 end;
 
-{?}
+{!}
 procedure OCJNZJNE0x03;
 begin
- EmitByte($75); EmitByte($03);
+ EmitByte($75); EmitByte($03); {jnz $+0x5, not 0x03}
  LastOutputCodeValue:=locJNZJNE0x03;
 end;
 
 {new}
-procedure OCJNZJNE0x04;
+{http://stackoverflow.com/questions/20730731/syntax-of-short-jmp-instruction}
+procedure OCJNZJNE0x06;
 begin
- EmitByte($75); EmitByte($04);
- LastOutputCodeValue:=locJNZJNE0x04;
+ EmitByte($75); EmitByte($04); {jmp $+0x6}
+ LastOutputCodeValue:=locJNZJNE0x06;
 end;
 
 {ab}
@@ -2268,7 +2269,7 @@ begin
  LastOutputCodeValue:=locMovEAXDWordPtrESP;
 end;
 
-{?}
+{-}
 procedure OCMovEBXDWordPtrFORStateCurrentValue;
 begin
  EmitByte($8b); EmitByte($5d); EmitByte($04); {mov    eax,DWORD PTR [ebp+0x4]}
@@ -2282,7 +2283,7 @@ begin
  LastOutputCodeValue:=locCmpDWordPtrEBXEAX;
 end;
 
-{?}
+{-}
 procedure OCMovEAXDWordPtrFORStateDestValue;
 begin
  EmitByte($8b); EmitByte($45); EmitByte($08); {mov    eax,DWORD PTR [ebp+0x8]}
@@ -2343,9 +2344,12 @@ begin
     OCPopEAX;  
     EmitByte($48); EmitByte($8b); EmitByte($d8); { MOV EBX,EAX }
     {?}
+    {eax even => eax=0; eax odd => eax=1}
     EmitByte($25); EmitByte($01); EmitByte($00); EmitByte($00); EmitByte($80); { AND EAX,$80000001 }
-    {?}
-    EmitByte($79); EmitByte($05); { JNS +$05 }
+    {ab}
+    {7905 = jns $+0x7 = 2 itself + 5 next bytes}
+    {790a = jns $+0xC = 2 itself + 10 next bytes}
+    EmitByte($79); EmitByte($0a); { JNS +$0xC }
     EmitByte($48); EmitByte($ff); EmitByte($c8); { DEC EAX }
     EmitByte($48); EmitByte($83); EmitByte($c8); EmitByte($fe); { OR EAX,BYTE -$02 }
     EmitByte($48); EmitByte($ff); EmitByte($c0); { INC EAX }
@@ -2429,8 +2433,8 @@ begin
    OPAndB:begin
     OCPopEAX;
     OCTestEAXEAX;
-    {ab}{originally it was skipping 3 instr. now 4}
-    OCJNZJNE0x04;
+    {ab}{originally it was skipping 3 bytes + 2 itself. now 4 bytes + 2 itself}
+    OCJNZJNE0x06;
     OCMovDWordPtrESPEAX;
     LastOutputCodeValue:=locNone;
    end;
@@ -2440,7 +2444,7 @@ begin
     EmitByte($48); EmitByte($83); EmitByte($f8); EmitByte($01);  { CMP EAX,1 }
     LastOutputCodeValue:=locNone;
     {ab}
-    OCJNZJNE0x04;
+    OCJNZJNE0x06;
     OCMovDWordPtrESPEAX;
     LastOutputCodeValue:=locNone;
    end;
@@ -2571,7 +2575,7 @@ begin
     if (Value>=-128) and (Value<=127) then begin
      {ab}EmitByte($48); EmitByte($89); EmitByte($45); EmitByte(Value); { MOV DWORD PTR [EBP+BYTE Value],EAX }
     end else begin
-     {ab}EmitByte($48); EmitByte($89); EmitByte($85); EmitInt32(Value); { MOV EAX,DWORD PTR [EBP+DWORD Value] }
+     {ab}EmitByte($48); EmitByte($89); EmitByte($85); EmitInt32(Value); {mistake: MOV EAX,DWORD PTR [EBP+DWORD Value] }
      {!}{changed to actual code: mov    QWORD PTR [rbp+0x12345678],rax}
     end;
     LastOutputCodeValue:=locNone;
@@ -2585,7 +2589,7 @@ begin
     OCPopESI;
     OCMovECXImm(Value);
     OCCLD;
-    {?}
+    {+}{*}
     OCREPMOVSB;
     OCXChgEDXESI;
     PC:=PC+1;
@@ -2600,7 +2604,7 @@ begin
     EmitByte($48); EmitByte($89); EmitByte($e7); { MOV EDI,ESP }
     LastOutputCodeValue:=locNone;
     OCCLD;
-    {?}
+    {+}{*}
     OCREPMOVSB;
     OCXChgEDXESI;
     PC:=PC+1;
@@ -2682,7 +2686,10 @@ begin
    OPExit:begin
     Value:=Value-4;
     if Value>0 then begin
-     {?}EmitByte($c2); EmitInt16(Value); { RET Value }
+     {ab}{EmitByte($c2); EmitInt16(Value); }{ RET Value }
+     {add rsp, int16_Value, 0, 0; RET}
+     EmitByte($48); EmitByte($48); EmitByte($48); EmitByte($48); EmitInt16(Value); EmitInt16(0);
+     EmitByte($c3);
     end else if Value=0 then begin
      {+}EmitByte($c3); { RET }
     end else begin
