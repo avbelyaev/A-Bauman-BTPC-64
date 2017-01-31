@@ -1,11 +1,10 @@
 #include <iostream>
 #include <vector>
+#include <fstream>
 
 using namespace std;
 
 #define PASCAL_STR_LEN_MAX 255
-
-typedef uint8_t BYTE;
 
 string NOP = "$90";
 
@@ -69,9 +68,21 @@ int main() {
         stringList.push_back(s);
         stringList.push_back("  OutputCodeDataSize:=" + to_string(bytes) + ";");
 
-        for (int i = 0; i < bytes / PASCAL_STR_LEN_MAX + 1 + 2; i++) {
 
-            cout << stringList[i] << endl;
+        ofstream stub;
+        stub.open ("emitStubCode.txt");
+        if (stub.is_open()) {
+
+            for (int i = 0; i < bytes / PASCAL_STR_LEN_MAX + 1 + 2; i++) {
+
+                cout << stringList[i] << endl;
+                stub << stringList[i] << "\n";
+            }
+
+            stub.close();
+
+        } else {
+            cout << "cannot open output file" << endl;
         }
 
     } else {
