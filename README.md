@@ -10,7 +10,7 @@ compile:
 linker script usage:
 
     gcc -c beronew.s
-    ld beronew.o -g -o beronew -T linkerScript
+    ld beronew.o -g -o beronew -T linkerScript.ld
 
 SASM x64 GAS compiler config:
 
