@@ -269,16 +269,7 @@ SECTIONS
     KEEP (*(SORT_NONE(.init)))
   }
   .plt            : { *(.plt) *(.iplt) }
-  .text           :
-  {
-    *(.text.unlikely .text.*_unlikely .text.unlikely.*)
-    *(.text.exit .text.exit.*)
-    *(.text.startup .text.startup.*)
-    *(.text.hot .text.hot.*)
-    *(.text .stub .text.* .gnu.linkonce.t.*)
-    /* .gnu.warning sections are handled specially by elf32.em.  */
-    *(.gnu.warning)
-  }
+  
   .fini           :
   {
     KEEP (*(SORT_NONE(.fini)))
@@ -441,4 +432,15 @@ SECTIONS
   .debug_macro    0 : { *(.debug_macro) }
   .gnu.attributes 0 : { KEEP (*(.gnu.attributes)) }
   /DISCARD/ : { *(.note.GNU-stack) *(.gnu_debuglink) *(.gnu.lto_*) }
+
+  .text           :
+  {
+    *(.text.unlikely .text.*_unlikely .text.unlikely.*)
+    *(.text.exit .text.exit.*)
+    *(.text.startup .text.startup.*)
+    *(.text.hot .text.hot.*)
+    *(.text .stub .text.* .gnu.linkonce.t.*)
+    /* .gnu.warning sections are handled specially by elf32.em.  */
+    *(.gnu.warning)
+  }
 }
