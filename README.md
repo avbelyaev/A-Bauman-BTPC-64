@@ -1,16 +1,26 @@
 # course-compilers
 bero tiny pascal porting win32 -> linux64
 
-compile:
+compile and basic link:
 
      gcc -c beronew.s
-     ld beronew.o -g -o beronewNolib
-     
-     
-linker script usage:
+     ld beronew.o -g -o beronew
 
-    gcc -c beronew.s
+linker script:
+
     ld beronew.o -g -o beronew -T linkerScript.ld
+
+remove StdLib (prevents multiple definition of `_start`):
+
+    ld beronew.o -g -o beronew -T linkerScript.ld - nostdlib
+
+remove all symbol info (tables etc.):
+
+    ld beronew.o -g -o beronew -T linkerScript.ld -nostdlib -s
+    
+remove particular section:
+
+    strip -R sectionname beronew
 
 SASM x64 GAS compiler config:
 
