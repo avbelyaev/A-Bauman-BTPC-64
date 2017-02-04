@@ -518,12 +518,12 @@ Test3:
 #//==----------------------------------==//
 StubEntryPoint:
 
-    movq $-7, %rax
+    /*movq $-7, %rax
     pushq %rax
     pushq $4
     call RTLWriteInteger
     addq $16, %rsp
-    #call RTLHalt
+    call RTLHalt*/
 
 #------------------------------------------
 #------------Preapare to start-------------
