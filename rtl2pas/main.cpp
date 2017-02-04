@@ -174,26 +174,14 @@ int main() {
         stringList.push_back("  OutputCodeDataSize:=" + to_string(bytes) + ";");
 
 
-        ofstream stub;
-        stub.open ("emitStubCode.txt");
-        if (stub.is_open()) {
+        for (int i = 0; i < bytes / PASCAL_STR_LEN_MAX + 1 + 2; i++) {
 
-            for (int i = 0; i < bytes / PASCAL_STR_LEN_MAX + 1 + 2; i++) {
-
-                cout << stringList[i] << endl;
-                stub << stringList[i] << "\n";
-            }
-
-            stub.close();
-
-        } else {
-            cout << "cannot open output file" << endl;
+            cout << stringList[i] << endl;
         }
 
 
 
-
-        cout << "Looking up for section headers" << endl;
+        cout << "Looking up for section headers:" << endl;
 
         findSectionHeaders(f);
 
@@ -203,36 +191,3 @@ int main() {
 
     return 0;
 }
-
-/*
- *
-stack_size = 4194332;
-heap_size = 256;
-
-ENTRY(_start)
-
-SECTIONS
-{
-
-. = 0x200000;
-.data :
-{
-    *(.data)
-    *(.bss)
-    *(COMMON)
-}
-
-. = 0x200100;
-.symtab :
-{
-    *(.symtab)
-}
-
-. = 0x200200;
-.text :
-{
-    *(.text)
-}
-}
-
-*/
