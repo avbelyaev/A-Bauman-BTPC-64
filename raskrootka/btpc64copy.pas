@@ -2321,7 +2321,7 @@ end;
 var JumpTable:array[1..MaximalCodeSize] of integer;
 
 procedure AssembleAndLink;
-var CountJumps,Opcode,Value,Index,PEEXECodeSize,PEEXESectionVirtualSize,PEEXESectionAlignment,PEEXECodeStart:integer;
+var OCS,CountJumps,Opcode,Value,Index,PEEXECodeSize,PEEXESectionVirtualSize,PEEXESectionAlignment,PEEXECodeStart:integer;
 begin
  EmitStubCode;
  PEEXECodeStart:=OutputCodeDataSize;
@@ -2735,38 +2735,39 @@ begin
  EmitEndingStub;
 
   {new}
+  OCS:=OutputCodeDataSize - PEEXECodeStart;
   {ElfHdr.e_shoff, 8b}
   {patch high part with 4bytes of value. optmistically cuz of midlevel code in x32}
-  OutputCodePutInt32($28, 		ElfHdrShoff_val0 + OutputCodeDataSize);
+  OutputCodePutInt32($28, 		ElfHdrShoff_val0 + OCS);
   {patch low 4bytes with nulls cuz of little endian}
   OutputCodePutInt32($28 + $4, 0);
   
   
   {new}
   {TextPhdr.p_filesz, 4b}
-  OutputCodePutInt32($7c, TextPhdrFilesz_val0 + OutputCodeDataSize);
+  OutputCodePutInt32($7c, TextPhdrFilesz_val0 + OCS);
 
   {new}
   {TextSectionHdr.size, 8b}
-  OutputCodePutInt32($598 + OutputCodeDataSize, 	 TxtSectHdrSize_val0 + OutputCodeDataSize);
-  OutputCodePutInt32($598 + OutputCodeDataSize + $4, 0);
+  OutputCodePutInt32($598 + OCS, 	 TxtSectHdrSize_val0 + OCS);
+  OutputCodePutInt32($598 + OCS + $4, 0);
 
   {new}
   {ShstrtabSectionHdr.offs, 8b}
-  OutputCodePutInt32($5b8 + OutputCodeDataSize, 	 ShSectHdrOffs_val0 + OutputCodeDataSize);
-  OutputCodePutInt32($5b8 + OutputCodeDataSize + $4, 0);
+  OutputCodePutInt32($5b8 + OCS, 	 ShSectHdrOffs_val0 + OCS);
+  OutputCodePutInt32($5b8 + OCS + $4, 0);
   
 
   {new}
   {SymtabSectionHdr.offs, 8b}
-  OutputCodePutInt32($610 + OutputCodeDataSize,		 SymSHdrOffs_val0 + OutputCodeDataSize);
-  OutputCodePutInt32($610 + OutputCodeDataSize + $4, 0);
+  OutputCodePutInt32($610 + OCS,		 SymSHdrOffs_val0 + OCS);
+  OutputCodePutInt32($610 + OCS + $4, 0);
 
   
   {new}
   {StrtabSectionHdr.offs, 8b}
-  OutputCodePutInt32($650 + OutputCodeDataSize,		 StrSHdrOffs_val0 + OutputCodeDataSize);
-  OutputCodePutInt32($650 + OutputCodeDataSize + $4, 0);
+  OutputCodePutInt32($650 + OCS,		 StrSHdrOffs_val0 + OCS);
+  OutputCodePutInt32($650 + OCS + $4, 0);
  { Patch jumps + calls }
  {for Index:=1 to CountJumps do begin
   Value:=JumpTable[Index];
