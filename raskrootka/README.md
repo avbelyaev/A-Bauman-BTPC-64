@@ -1,1 +1,1 @@
-raskrootka zdes'
+Bootstrap direcory
