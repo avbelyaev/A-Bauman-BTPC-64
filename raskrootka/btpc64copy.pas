@@ -2356,7 +2356,13 @@ begin
   OutputCodePutInt32($598 + $1 + InjectionSize + $4, 0);
   
 
+  {new}
+  {ShstrtabSectionHdr.offs 8b}
+  OutputCodePutInt32($5d0 + $1 + InjectionSize, 	 ShSectHdrOffs_val0 + InjectionSize);
+  OutputCodePutInt32($5d0 + $1 + InjectionSize + $4, 0);
 
+
+  
  { Patch jumps + calls }
  {for Index:=1 to CountJumps do begin
   Value:=JumpTable[Index];
