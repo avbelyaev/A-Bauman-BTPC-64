@@ -2363,11 +2363,19 @@ begin
   OutputCodePutInt32($5d0 + $1 + InjectionSize, 	 ShSectHdrOffs_val0 + InjectionSize);
   OutputCodePutInt32($5d0 + $1 + InjectionSize + $4, 0);
 
-  {4}
+  {5}
   {new}
   {SymtabSectionHdrOffs.offs, 8b}
   OutputCodePutInt32($610 + $1 + InjectionSize, 	 SymSHdrOffs_val0 + InjectionSize);
   OutputCodePutInt32($610 + $1 + InjectionSize + $4, 0);
+
+
+  {6}
+  {new}
+  {StrtabSectHdrOffs.offs, 8b}
+  OutputCodePutInt32($650 + $1 + InjectionSize, 	 StrSHdrOffs_val0 + InjectionSize);
+  OutputCodePutInt32($650 + $1 + InjectionSize + $4, 0);
+
   
  { Patch jumps + calls }
  {for Index:=1 to CountJumps do begin
