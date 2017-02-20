@@ -2239,7 +2239,7 @@ end;
 {=}
 procedure OCCallDWordPtrESIOfs(Ofs:integer);
 begin
- EmitByte($ff); EmitByte($56); EmitByte(Ofs);
+ EmitByte($ff); EmitByte($56); EmitByte(Ofs);   {?}{не нужно ли здесь еще 3 байта нулевых дописать?}
  LastOutputCodeValue:=locCallDWordPtrESIOfs;
 end;
 
@@ -2327,12 +2327,12 @@ var InjectionSize,CountJumps,Opcode,Value,Index,PEEXECodeSize,PEEXESectionVirtua
 begin
  EmitStubCode;
  PEEXECodeStart:=OutputCodeDataSize;
- LastOutputCodeValue:=locNone;
- PC:=0;
- CountJumps:=0;
 
-{new}
- EmitEndingStub;
+  {try to exit with no error by calling RTLHalt}
+  OCJmpDWordPtrESIOfs(0);
+
+  {new}
+  EmitEndingStub;
 
 
   {new}
@@ -2340,9 +2340,7 @@ begin
 
   {1}
   {ElfHdr.e_shoff, 8b}
-  {patch high part with 4bytes of value. optmistically cuz of midlevel code in x32}
   OutputCodePutInt32($28 + $1, 		ElfHdrShoff_val0 + InjectionSize);
-  {patch low 4bytes with nulls cuz of little endian}
   OutputCodePutInt32($28 + $1 + $4, 0);
   
   {2}
