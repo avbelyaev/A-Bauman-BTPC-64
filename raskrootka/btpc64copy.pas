@@ -2083,7 +2083,7 @@ const EndingStubSize=$2173;
         ShSectHdrOffs_offs=$5d0;
         ShSectHdrOffs_val0=$4d1;
         SymSHdrOffs_val0=$678;
-        StrSHdrOffs_val0=$ae0;
+        StrSHdrOffs_val0=$ae0;        
 
 	  locNone=0;
 
@@ -2338,30 +2338,36 @@ begin
   {new}
   InjectionSize:=OutputCodeDataSize-EndStubSize-PEEXECodeStart;
 
+  {1}
   {ElfHdr.e_shoff, 8b}
   {patch high part with 4bytes of value. optmistically cuz of midlevel code in x32}
   OutputCodePutInt32($28 + $1, 		ElfHdrShoff_val0 + InjectionSize);
   {patch low 4bytes with nulls cuz of little endian}
   OutputCodePutInt32($28 + $1 + $4, 0);
   
+  {2}
   {new}
   {TextPhdr.p_filesz, 4b}
   OutputCodePutInt32($98 + $1, TextPhdrFilesz_val0 + InjectionSize);
 
-
+  {3}
   {new}
   {TextSectionHdr.size, 8b}
   {it flows forward as InjectionSize increases}
   OutputCodePutInt32($598 + $1 + InjectionSize, 	 TxtSectHdrSize_val0 + InjectionSize);
   OutputCodePutInt32($598 + $1 + InjectionSize + $4, 0);
   
-
+  {4}
   {new}
-  {ShstrtabSectionHdr.offs 8b}
+  {ShstrtabSectionHdr.offs, 8b}
   OutputCodePutInt32($5d0 + $1 + InjectionSize, 	 ShSectHdrOffs_val0 + InjectionSize);
   OutputCodePutInt32($5d0 + $1 + InjectionSize + $4, 0);
 
-
+  {4}
+  {new}
+  {SymtabSectionHdrOffs.offs, 8b}
+  OutputCodePutInt32($610 + $1 + InjectionSize, 	 SymSHdrOffs_val0 + InjectionSize);
+  OutputCodePutInt32($610 + $1 + InjectionSize + $4, 0);
   
  { Patch jumps + calls }
  {for Index:=1 to CountJumps do begin
