@@ -10,7 +10,7 @@ linker script:
 
     ld beronew.o -g -o beronew -T linkerScript.ld
 
-remove StdLib (prevents multiple definition of `_start`):
+remove StdLib (prevents multiple definition of `_start`): (Currently using):
 
     ld beronew.o -g -o beronew -T linkerScript.ld - nostdlib
 
@@ -18,22 +18,22 @@ remove all symbol info (tables etc.):
 
     ld beronew.o -g -o beronew -T linkerScript.ld -nostdlib -s
     
-remove particular section:
+Remove ELF sction: `strip -R sectionname beronew`
 
-    strip -R sectionname beronew
+Read ELF sections: `readelf -S beronew`
+
+Read ELF segments: `readelf -l beronew`
+
+Dump ELF intrails: `hexdump -C beronew`
 
 SASM x64 GAS compiler config:
 
      as -o $PROGRAM.OBJ$ $SOURCE$
      ld $PROGRAM.OBJ$ -g -o $PROGRAM$
 
-gas:
+gas: `(IsEOF) == IsEOF`
 
-    (IsEOF) == IsEOF
-
-gdb:
-
-    gdb beronewNolib 
+gdb: `gdb beronewNolib `
 
     info files
     b *0x4000b0
@@ -48,7 +48,7 @@ gdb:
     
 btpc64 annotations:
     
-    {+} - doesnt need to be changed
+    {=} - remained same
     {-} - not used.
     {ab} - successfully changed
     {?} - not yet done. need to think
