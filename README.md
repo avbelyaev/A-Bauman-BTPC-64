@@ -12,7 +12,7 @@ linker script:
 
 remove StdLib (prevents multiple definition of `_start`): (Currently using):
 
-    ld beronew.o -g -o beronew -T linkerScript.ld - nostdlib
+    ld beronew.o -g -o beronew -T linkerScript.ld -nostdlib
 
 remove all symbol info (tables etc.):
 
