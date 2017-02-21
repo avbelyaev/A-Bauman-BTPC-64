@@ -1,7 +1,7 @@
 **Bootstrap cycle:**
 
 
-0.Cd to `berowin` on both Linux:
+0.Cd to `berowin` on Linux:
 
     cd /mnt/c/Users/anthony/Documents/Dropbox/berowin && ls -l
     
