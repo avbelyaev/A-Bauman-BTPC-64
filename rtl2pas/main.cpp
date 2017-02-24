@@ -349,7 +349,7 @@ int main() {
     FILE *f = fopen(
             //"/home/anthony/Dropbox/bero/beronew",
             //"/home/anthony/Dropbox/bero/x32/bero32",
-            "C:\\Users\\anthony\\Documents\\Dropbox\\berowin\\beronew",
+            "C:\\Users\\anthony\\Documents\\Dropbox\\berowin\\rtl64",
             //"C:\\Users\\anthony\\Documents\\Dropbox\\berowin\\print",
             "rwb");
 
