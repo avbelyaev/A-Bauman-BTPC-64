@@ -5,26 +5,28 @@
 
     cd /mnt/c/Users/anthony/Documents/Dropbox/berowin && ls -l
     
-1.**Compile on Windows:**
+0.1 Reassemble stub code and paste into btpc64copy.pas:
 
-    btpc.exe <btpc64copy.pas >btpcnew.exe && btpcnew.exe <testBranch.pas >test
+    gcc -c rtl64.s && ld 64.o -g -o rtl64 -T linkerScript.ld -nostdlib && ./rtl64    
     
-1.1 **Check expected result on Windows:**
+1).**Compile on Windows:**
+
+    btpc.exe <btpc64copy.pas >btpcnew.exe && btpcnew.exe <testFunc.pas >test
     
-    btpcwin.exe <testBranch.pas >testnorm.exe && type testnorm.exe && testnorm.exe
+1.1).**Check expected result on Windows:**
     
-2.**Run on Linux:**
+    btpcwin.exe <testFunc.pas >testnorm.exe && type testnorm.exe && testnorm.exe
+    
+2).**Run on Linux:**
    
     cd . && ./test
     
-3.**Pray to the God:**
+3).**Pray to the God:**
 
     God have mercy please!
 
-4.**Iterate:**
+4).**Iterate:**
 
     goto 1.
 
-Reassemble stub code:
 
-    gcc -c beronew.s && ld beronew.o -g -o beronew -T linkerScript.ld -nostdlib
