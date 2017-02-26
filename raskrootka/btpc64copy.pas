@@ -2556,7 +2556,6 @@ begin
    end;
    OPLdC:begin
     if (Value>=-128) and (Value<=127) then begin
-
      {=}EmitByte($6a); EmitByte(Value); { PUSH BYTE Value }
     end else begin
      {=}EmitByte($68); EmitInt32(Value); { PUSH DWORD Value }
@@ -2565,13 +2564,12 @@ begin
     PC:=PC+1;
    end;
    OPLdA:begin
+    Value:=Value*2;
     if Value=0 then begin
      {ab}EmitByte($48); EmitByte($89); EmitByte($e8); { MOV EAX,EBP }
     end else if (Value>=-128) and (Value<=127) then begin
-    	Value:=Value*2;
      {ab}EmitByte($48); EmitByte($8d); EmitByte($45); EmitByte(Value); { LEA EAX,[EBP+BYTE Value] }
     end else begin
-    	Value:=Value*2;
      {ab}EmitByte($48); EmitByte($8d); EmitByte($85); EmitInt32(Value); { LEA EAX,[EBP+DWORD Value] }
     end;
     LastOutputCodeValue:=locNone;
@@ -2579,13 +2577,12 @@ begin
     PC:=PC+1;
    end;
    OPLdLA:begin
+    Value:=Value*2;
     if Value=0 then begin
      {ab}EmitByte($48); EmitByte($89); EmitByte($e0); { MOV EAX,ESP }
     end else if (Value>=-128) and (Value<=127) then begin
-    	Value:=Value*2;
      {ab}EmitByte($48); EmitByte($8d); EmitByte($44); EmitByte($24); EmitByte(Value); { LEA EAX,[ESP+BYTE Value] }
     end else begin
-    	Value:=Value*2;
      {ab}EmitByte($48); EmitByte($8d); EmitByte($84); EmitByte($24); EmitInt32(Value); { LEA EAX,[ESP+DWORD Value] }
     end;
     LastOutputCodeValue:=locNone;
@@ -2593,24 +2590,22 @@ begin
     PC:=PC+1;
    end;
    OPLdL:begin
+    Value:=Value*2;
     if Value=0 then begin
      OCMovEAXDWordPtrESP;
     end else if (Value>=-128) and (Value<=127) then begin
-      Value:=Value*2;
      {ab}EmitByte($48); EmitByte($8b); EmitByte($44); EmitByte($24); EmitByte(Value); { MOV EAX,DWORD PTR [ESP+BYTE Value] }
     end else begin
-      Value:=Value*2;
      {ab}EmitByte($48); EmitByte($8b); EmitByte($84); EmitByte($24); EmitInt32(Value); { MOV EAX,DWORD PTR [ESP+DWORD Value] }
     end;
     OCPushEAX;
     PC:=PC+1;
    end;
    OPLdG:begin
+    Value:=Value*2;
     if (Value>=-128) and (Value<=127) then begin
-      Value:=Value*2;
      {ab}EmitByte($48); EmitByte($8b); EmitByte($45); EmitByte(Value); { MOV EAX,DWORD PTR [EBP+BYTE Value] }
     end else begin
-      Value:=Value*2;
      {ab}EmitByte($48); EmitByte($8b); EmitByte($85); EmitInt32(Value); { MOV EAX,DWORD PTR [EBP+DWORD Value] }
     end;
     LastOutputCodeValue:=locNone;
@@ -2620,13 +2615,12 @@ begin
    OPStL:begin
     OCPopEAX;
     Value:=Value-4;
+    Value:=Value*2;
     if Value=0 then begin
      {ab}EmitByte($48); EmitByte($89); EmitByte($04); EmitByte($24); { MOV DWORD PTR [ESP],EAX }
     end else if (Value>=-128) and (Value<=127) then begin
-    	Value:=Value*2;
      {ab}EmitByte($48); EmitByte($89); EmitByte($44); EmitByte($24); EmitByte(Value); { MOV DWORD PTR [ESP+BYTE Value],EAX }
     end else begin
-    	Value:=Value*2;
      {ab}EmitByte($48); EmitByte($89); EmitByte($84); EmitByte($24); EmitInt32(Value); { MOV EAX,DWORD PTR [ESP+DWORD Value] }
     end;
     LastOutputCodeValue:=locNone;
@@ -2634,11 +2628,10 @@ begin
    end;
    OPStG:begin
     OCPopEAX;
+    Value:=Value*2;
     if (Value>=-128) and (Value<=127) then begin
-      Value:=Value*2;
      {ab}EmitByte($48); EmitByte($89); EmitByte($45); EmitByte(Value); { MOV DWORD PTR [EBP+BYTE Value],EAX }
     end else begin
-      Value:=Value*2;
      {ab}EmitByte($48); EmitByte($89); EmitByte($85); EmitInt32(Value); {mistake: MOV EAX,DWORD PTR [EBP+DWORD Value] }
      {!}{changed to actual code: mov    QWORD PTR [rbp+0x12345678],rax}
     end;
@@ -2732,21 +2725,18 @@ begin
     PC:=PC+1;
    end;
    OPAdjS:begin
+    Value:=Value*2;
     if Value>0 then begin
      if (Value>=-128) and (Value<=127) then begin
-       Value:=Value*2;
       {ab}EmitByte($48); EmitByte($83); EmitByte($c4); EmitByte(Value); { ADD ESP,BYTE Value }
      end else begin
-       Value:=Value*2;
       {ab}EmitByte($48); EmitByte($81); EmitByte($c4); EmitInt32(Value); { ADD ESP,DWORD Value }
      end;
     end else if Value<0 then begin
      Value:=-Value;
      if (Value>=-128) and (Value<=127) then begin
-      Value:=Value*2;
       {ab}EmitByte($48); EmitByte($83); EmitByte($ec); EmitByte(Value); { SUB ESP,BYTE Value }
      end else begin
-      Value:=Value*2;
       {ab}EmitByte($48); EmitByte($81); EmitByte($ec); EmitInt32(Value); { SUB ESP,DWORD Value }
      end;
     end;
@@ -2755,10 +2745,10 @@ begin
    end;
    OPExit:begin
     Value:=Value-4;
+    Value:=Value*2;
     if Value>0 then begin
      {ab}{EmitByte($c2); EmitInt16(Value); }{ RET Value }
      {add rsp, int16_Value, 0, 0; RET}
-     Value:=Value*2;
      EmitByte($c2); EmitInt16(Value);
      {EmitByte($48); EmitByte($48); EmitByte($48); EmitByte($48); EmitInt16(Value); EmitInt16(0);
      EmitByte($c3);}
