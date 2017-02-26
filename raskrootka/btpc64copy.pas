@@ -2260,7 +2260,7 @@ end;
 {ab}
 procedure OCXChgEDXESI;
 begin
- EmitByte($48); EmitByte($87); EmitByte($f2);
+ EmitByte($48); EmitByte($87); EmitByte($d6);
  LastOutputCodeValue:=locXChgEDXESI;
 end;
 
@@ -2274,7 +2274,7 @@ end;
 {ab}
 procedure OCMovECXImm(Value:integer);
 begin
- EmitByte($48); EmitByte($c7); EmitByte($c6); EmitInt32(Value);
+ EmitByte($48); EmitByte($c7); EmitByte($c1); EmitInt32(Value);
  LastOutputCodeValue:=locMovECXImm;
 end;
 
@@ -2651,6 +2651,7 @@ begin
     EmitByte($5f); { POP EDI }
     LastOutputCodeValue:=locNone;
     OCPopESI;
+    Value:=Value*2;
     OCMovECXImm(Value);
     OCCLD;
     {=}{*}
@@ -2661,6 +2662,7 @@ begin
    OPCopy:begin
     OCXChgEDXESI;
     OCPopESI;
+    Value:=Value*2;
     OCMovECXImm(Value);
     {ab}
     EmitByte($48); EmitByte($29); EmitByte($cc); { SUB ESP,ECX }
