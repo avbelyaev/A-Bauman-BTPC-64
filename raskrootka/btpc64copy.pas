@@ -1016,7 +1016,10 @@ begin
       MustBe(TypeINT,x);
       EmitOpcode(OPAddC,-Types[t].StartIndex);
       t:=Types[t].SubType;
-      EmitOpcode(OPMulC,Types[t].Size);
+      {ab}
+      {in arrays mul is used to get offsets of elemnts in stack}
+      {so value needs to be doubled}
+      EmitOpcode(OPMulC,Types[t].Size * 2);
       EmitOpcode2(OPAdd);
      until CurrentSymbol<>TokComma;
      Expect(TokRBracket)
@@ -2089,6 +2092,7 @@ const EndingStubSize=$2139;
   SymSHdrOffs_val0=$608;
   StrSHdrOffs_val0=$a58;
   OffsElfHdrShoff=$28;
+  OffsTextPHdrMemsz=$a0;
   OffsTextPHdrFilesz=$98;
   OffsTextSectSize=$528;
   OffsShstrSectOffs=$560;
@@ -2521,12 +2525,13 @@ begin
     {ab}
     OCCallDWordPtrESIOfs(40);
     OCMovDWordPtrEBXEAX;
-
+    (*
   {if this stub is right below readInt, writeInt works good}
   {pushq %rax       }EmitByte($50);                               
   {pushq $1         }EmitByte($6a); EmitByte($01);                  
   {call WriteInteger}EmitByte($ff); EmitByte($56); EmitByte($10);
   {addq $16, %rsp   }{EmitByte($48); EmitByte($83); EmitByte($c4); EmitByte($10);}
+  *)
    end;
    OPRdC:begin
     OCPopEBX;
@@ -2815,8 +2820,9 @@ begin
   OutputCodePutInt32(OffsTextPHdrFilesz + $1, TextPhdrFilesz_val0 + InjectionSize);
 
 
-  {!}{!!} {need to fix memsz also}
-  OutputCodePutInt32($a0 + $1, TextPhdrFilesz_val0 + InjectionSize); {3de/3e1}
+  {2.5} {TextPhdr.memsz, 4b}
+  OutputCodePutInt32(OffsTextPHdrMemsz + $1, TextPhdrFilesz_val0 + InjectionSize);
+  
   {3}
   {new}
   {TextSectionHdr.size, 8b}
@@ -2842,44 +2848,6 @@ begin
   {StrtabSectHdrOffs.offs, 8b}
   OutputCodePutInt32(OffsStrtabSectOffs + $1 + InjectionSize, 	 StrSHdrOffs_val0 + InjectionSize);
   OutputCodePutInt32(OffsStrtabSectOffs + $1 + InjectionSize + $4, 0);
-
-  
- { Patch jumps + calls }
- {for Index:=1 to CountJumps do begin
-  Value:=JumpTable[Index];
-  OutputCodePutInt32(Value,((Code[OutputCodeGetInt32(Value)]-Value)-3));
- end;}
-
- { Size Of Code }
- {PEEXECodeSize:=OutputCodeGetInt32($29)+(OutputCodeDataSize-PEEXECodeStart);
- OutputCodePutInt32($29,PEEXECodeSize);}
-
- { Get section alignment }
- {PEEXESectionAlignment:=OutputCodeGetInt32($45);}
-
- { Calculate and patch section virtual size }
- {PEEXESectionVirtualSize:=PEEXECodeSize;
- if PEEXESectionAlignment<>0 then begin
-  Value:=PEEXECodeSize mod PEEXESectionAlignment;
-  if Value<>0 then begin
-   PEEXESectionVirtualSize:=PEEXESectionVirtualSize+(PEEXESectionAlignment-Value);
-  end;
- end;
- OutputCodePutInt32($10d,PEEXESectionVirtualSize);}
-
- { Calculate and patch image size }
- {OutputCodePutInt32($5d,PEEXESectionVirtualSize+OutputCodeGetInt32($39));}
-
- { Patch section raw size }
- {OutputCodePutInt32($115,OutputCodeGetInt32($115)+(OutputCodeDataSize-PEEXECodeStart));}
-
-{singleton tarificator
-url tariff.rp v pomniki library
-summu Long -> BigDecimal
-zadel na razmery yacheek TODO otmetit'
-login-parol v base 64 simple auth wiki
-login-parol iz konfy v swagger
-reposense 200 i uuid vernulsya - vse chto nuzhno. obj for reposnse notificator}
 
  WriteOutputCode;
 end;
