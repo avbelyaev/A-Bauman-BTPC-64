@@ -7,7 +7,7 @@
     
 0.1 Reassemble stub code and paste into btpc64copy.pas:
 
-    gcc -c rtl64.s && ld 64.o -g -o rtl64 -T linkerScript.ld -nostdlib && ./rtl64    
+    gcc -c rtl64.s && ld rtl64.o -g -o rtl64 -T linkerScript.ld -nostdlib && ./rtl64    
     
 1).**Compile on Windows:**
 
