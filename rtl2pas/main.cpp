@@ -313,7 +313,9 @@ void printConst() {
 
     myfile << "\tOffsElfHdrShoff=$" << hex << offsetof(Elf64_Ehdr, e_shoff) << ";\n";
     myfile << "\tOffsTextPHdrFilesz=$" << hex <<
-         sizeof(Elf64_Ehdr) + sizeof(Elf64_Phdr) + offsetof(Elf64_Phdr, p_filesz) << ";\n";
+           sizeof(Elf64_Ehdr) + sizeof(Elf64_Phdr) + offsetof(Elf64_Phdr, p_filesz) << ";\n";
+    myfile << "\tOffsTextPHdrMemsz=$" << hex <<
+           sizeof(Elf64_Ehdr) + sizeof(Elf64_Phdr) + offsetof(Elf64_Phdr, p_memsz) << ";\n";
     myfile << "\tOffsTextSectSize=$" << hex <<
          elfHdr.e_shoff + 2 * sizeof(Elf64_Shdr) + offsetof(Elf64_Shdr, sh_size) << ";\n";
 
