@@ -1,4 +1,4 @@
-**Bootstrap cycle:**
+## Bootstrap cycle
 
 
 0.Cd to `berowin` on Linux:
@@ -13,10 +13,6 @@
 
     btpc.exe <btpc64copy.pas >btpcnew.exe && btpcnew.exe <testFunc.pas >test
     
-1.1).**Check expected result on Windows:**
-    
-    btpcwin.exe <testFunc.pas >testnorm.exe && type testnorm.exe && testnorm.exe
-    
 2).**Run on Linux:**
    
     cd . && ./test
@@ -30,11 +26,13 @@
     goto 1.
 
 
-linker script:
+## Useful commands
+
+replace verbose with custom linker script:
 
     ld beronew.o -g -o beronew -T linkerScript.ld
 
-remove StdLib (prevents multiple definition of `_start`): (Currently using):
+remove StdLib (prevents multiple definition of `_start`):
 
     ld beronew.o -g -o beronew -T linkerScript.ld -nostdlib
 
@@ -42,40 +40,31 @@ remove all symbol info (tables etc.):
 
     ld beronew.o -g -o beronew -T linkerScript.ld -nostdlib -s
     
-Remove ELF sction: `strip -R sectionname beronew`
+Remove ELF sction: `strip -R sectionname rtl64`
 
-Read ELF sections: `readelf -S beronew`
+Read ELF sections: `readelf -S rtl64`
 
-Read ELF segments: `readelf -l beronew`
+Read ELF segments: `readelf -l rtl64`
 
-Dump ELF intrails: `hexdump -C beronew`
+Dump ELF intrails: `hexdump -C rtl64`
 
 SASM x64 GAS compiler config:
 
      as -o $PROGRAM.OBJ$ $SOURCE$
      ld $PROGRAM.OBJ$ -g -o $PROGRAM$
 
-gas: `(IsEOF) == IsEOF`
+gas note: `(IsEOF) == IsEOF`
 
-gdb: `gdb beronewNolib `
+gdb: `gdb rtl64`
 
     info files
     b *0x4000b0
     run == r
-    si 3
-    ni 3
+    si 3    //step into
+    ni 3    //step over
     x/5i $pc
     x/8g $sp
     info registers == i r
     p $rax
     set $rax = 0x123
     
-btpc64 annotations:
-    
-    {=} - remained same
-    {-} - not used.
-    {ab} - successfully changed
-    {?} - not yet done. need to think
-    {!} - mistake in original code / commentary
-    {new} - newly created func/proc/var/etc
-    {*} - point of interest. possible mistake
