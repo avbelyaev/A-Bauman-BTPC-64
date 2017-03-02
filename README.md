@@ -1,57 +1,49 @@
-# course-compilers
-bero tiny pascal porting win32 -> linux64
+# A Bauman BeRo TinyPascal
 
-compile and basic link:
+A ported version of self-hosting capable [BeRo Tiny Pascal Compiler](https://github.com/BeRo1985/berotinypascal) for the Linux x64 platform
 
-     gcc -c beronew.s
-     ld beronew.o -g -o beronew
+## Original license
 
-linker script:
+     ******************************************************************************
+     *                                zlib license                                *
+     *============================================================================*
+     *                                                                            *
+     * Copyright (C) 2006-2016, Benjamin Rosseaux (benjamin@rosseaux.com)         *
+     *                                                                            *
+     * This software is provided 'as-is', without any express or implied          *
+     * warranty. In no event will the authors be held liable for any damages      *
+     * arising from the use of this software.                                     *
+     *                                                                            *
+     * Permission is granted to anyone to use this software for any purpose,      *
+     * including commercial applications, and to alter it and redistribute it     *
+     * freely, subject to the following restrictions:                             *
+     *                                                                            *
+     * 1. The origin of this software must not be misrepresented; you must not    *
+     *    claim that you wrote the original software. If you use this software    *
+     *    in a product, an acknowledgement in the product documentation would be  *
+     *    appreciated but is not required.                                        *
+     * 2. Altered source versions must be plainly marked as such, and must not be *
+     *    misrepresented as being the original software.                          *
+     * 3. This notice may not be removed or altered from any source distribution. *
+     *                                                                            *
+     ******************************************************************************
 
-    ld beronew.o -g -o beronew -T linkerScript.ld
+## Porting notes
 
-remove StdLib (prevents multiple definition of `_start`): (Currently using):
+Provided ported version is a part of compilers course project at [BMSTU ICS-9](https://github.com/bmstu-iu9). 
 
-    ld beronew.o -g -o beronew -T linkerScript.ld -nostdlib
+Porting author - Anthony Belyaev (antonsdl@gmail.com).
 
-remove all symbol info (tables etc.):
+Original BTPC author - Benjamin Rosseaux (benjamin@rosseaux.com)
 
-    ld beronew.o -g -o beronew -T linkerScript.ld -nostdlib -s
-    
-Remove ELF sction: `strip -R sectionname beronew`
+## How-to-use
 
-Read ELF sections: `readelf -S beronew`
+### Basic compiler usage
 
-Read ELF segments: `readelf -l beronew`
+     btpc64 < myProgram.pas > myProgram
 
-Dump ELF intrails: `hexdump -C beronew`
+### Runtime reassemble
 
-SASM x64 GAS compiler config:
-
-     as -o $PROGRAM.OBJ$ $SOURCE$
-     ld $PROGRAM.OBJ$ -g -o $PROGRAM$
-
-gas: `(IsEOF) == IsEOF`
-
-gdb: `gdb beronewNolib `
-
-    info files
-    b *0x4000b0
-    run == r
-    si 3
-    ni 3
-    x/5i $pc
-    x/8g $sp
-    info registers == i r
-    p $rax
-    set $rax = 0x123
-    
-btpc64 annotations:
-    
-    {=} - remained same
-    {-} - not used.
-    {ab} - successfully changed
-    {?} - not yet done. need to think
-    {!} - mistake in original code / commentary
-    {new} - newly created func/proc/var/etc
-    {*} - point of interest. possible mistake
+     gcc -c rtl64.s
+     ld rtl64.o -g -o rtl64 -T linkerScript.ld -nostdlib
+     
