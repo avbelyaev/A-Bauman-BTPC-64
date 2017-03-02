@@ -32,9 +32,9 @@ A ported version of self-hosting capable [BeRo Tiny Pascal Compiler](https://git
 
 Provided ported version is a part of compilers course project at [BMSTU ICS-9](https://github.com/bmstu-iu9). 
 
-Porting author - Anthony Belyaev (antonsdl@gmail.com).
+Original BTPC author - Benjamin Rosseaux.
 
-Original BTPC author - Benjamin Rosseaux (benjamin@rosseaux.com)
+Porting author - Anthony Belyaev.
 
 ## How-to-use
 
