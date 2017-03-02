@@ -28,14 +28,6 @@ A ported version of self-hosting capable [BeRo Tiny Pascal Compiler](https://git
      *                                                                            *
      ******************************************************************************
 
-## Porting notes
-
-Provided ported version is a part of compilers course project at [BMSTU ICS-9](https://github.com/bmstu-iu9). 
-
-Original BTPC author - Benjamin Rosseaux.
-
-Porting author - Anthony Belyaev.
-
 ## How-to-use
 
 ### Basic compiler usage
@@ -47,3 +39,23 @@ Porting author - Anthony Belyaev.
      gcc -c rtl64.s
      ld rtl64.o -g -o rtl64 -T linkerScript.ld -nostdlib
      
+## Porting notes
+
+Provided ported version is a part of compilers course project at [BMSTU ICS-9](https://github.com/bmstu-iu9) in 2017. 
+
+Porting author - Anthony Belyaev.
+
+Original BTPC author - Benjamin Rosseaux.
+
+### Source code annotations
+
+Ported version of BTPC was provided with annotations to some functions/procs of original compiler:
+
+    {=}   - nothing was changed
+    {-}   - original function is not used in new version
+    {ab}  - function's insides was chagned or minorly fixed
+    {?}   - need to think a little
+    {!}   - mistake in original code / commentary
+    {new} - newly created func/proc/variable
+
+RTL64 was also provided with some self-tests and debugging macroses
